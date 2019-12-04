@@ -1,0 +1,12 @@
+<div>
+  <a href = "/add" class = "btn index_btn">追加</a>
+</div>
+<ul class = "note_list">
+  <% @notes.each do |note| %>
+    <li data-id = "<%= note['id'] %>">
+      <a href = "/note/<%= note['id'] %>">
+        <%= note['title'] %>
+      </a>
+    </li>
+    <% end %>
+</ul>

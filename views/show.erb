@@ -1,0 +1,20 @@
+<div data-id= "<%= @note['id'] %>">
+	<div class = "written_content" style = "font-size: 25px">
+	  <div class = "title_show">
+		<%= @note['title'] %>
+	  </div>
+	  <br>
+	  <div class = "content_show">
+		<%= @note['content'] %>
+	  </div>
+    </div>
+</div>
+
+<div class = "show_btns">
+	<a href="/note/edit/<%= @note['id'] %>" class = "edit_btn">変更</a>
+
+	<form method="post" action="/note/delete/<%= @note['id'] %>">
+		<input type="hidden" name="_method" value="DELETE">
+		<input type="submit" value="削除" class = "delete_btn">
+	</form>
+</div>

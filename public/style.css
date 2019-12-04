@@ -1,0 +1,88 @@
+.note_list {
+    margin-left: 5%;
+    position: absolute;
+    top: 90px
+}
+
+.btn {
+    padding: 0.5em 1.5em;
+    text-decoration: none;
+    background: #D8D8D8;
+    color: #000;
+    border-radius: 5px;
+    display: inline-block;
+    font-size: 1.2em;
+    margin-left: 30%;
+}
+
+textarea {
+    height: 100px;
+    margin-top: 20px;
+    background: #D8D8D8;
+    width: 40%;
+    text-align: left;
+    margin-left: 15%;
+    font-size: 100%
+}
+
+.title_input {
+    margin-left: 15%;
+    height: 30px;
+    padding-left: 5px;
+}
+
+.show_btns {
+    display: flex;
+    margin-left: 18%;
+}
+
+.edit_btn {
+    padding: 0.5em 1.5em;
+    text-decoration: none;
+    background: #D8D8D8;
+    color: #000;
+    border-radius: 5px;
+    display: inline-block;
+    font-size: 1.2em;
+    margin-right: 8em;
+}
+
+.written_content {
+    margin: 1em 5em;
+}
+
+.delete_btn {
+    padding: 0.5em 1.5em;
+    text-decoration: none;
+    background: #D8D8D8;
+    color: #000;
+    border-radius: 5px;
+    display: inline-block;
+    font-size: 1.2em;
+}
+
+.memo_app_title {
+    text-decoration: none;
+    color: #000;
+    font-size: 1.5em;
+    margin-left: 23%;
+}
+
+.title_show {
+    margin-bottom: 50px;
+}
+
+.content_show {
+    margin-bottom: 200px;
+}
+
+.index_btn {
+    margin-left: 50%;
+}
+
+input {
+	font-size: 100%;
+	color: #000;
+    background-color: #D8D8D8;
+    border: none;
+}
