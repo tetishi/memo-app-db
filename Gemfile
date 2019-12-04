@@ -8,11 +8,4 @@ git_source(:github) {|repo_name| "https://github.com/#{repo_name}" }
 
 gem 'sinatra'
 gem 'sinatra-contrib'
-# gem 'activerecord'
-# gem 'sinatra-activerecord'
-# gem 'sqlite3'
-
 gem 'rack-contrib'
-
-# gem 'unicorn'
-# gem 'omniauth'
