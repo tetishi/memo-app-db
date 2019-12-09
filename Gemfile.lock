@@ -4,6 +4,7 @@ GEM
     backports (3.15.0)
     multi_json (1.14.1)
     mustermann (1.0.3)
+    pg (1.1.4)
     rack (2.0.7)
     rack-contrib (2.1.0)
       rack (~> 2.0)
@@ -27,6 +28,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  pg
   rack-contrib
   sinatra
   sinatra-contrib

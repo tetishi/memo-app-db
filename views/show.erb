@@ -1,19 +1,19 @@
-<div data-id= "<%= @note['id'] %>">
+<div data-id= "<%= params[:id] %>">
 	<div class = "written_content" style = "font-size: 25px">
 	  <div class = "title_show">
-		<%= @note['title'] %>
+		<%= @note.title %>
 	  </div>
 	  <br>
 	  <div class = "content_show">
-		<%= @note['content'] %>
+		<%= @note.content %>
 	  </div>
     </div>
 </div>
 
 <div class = "show_btns">
-	<a href="/note/edit/<%= @note['id'] %>" class = "edit_btn">変更</a>
+	<a href="/note/edit/<%= params[:id] %>" class = "edit_btn">変更</a>
 
-	<form method="post" action="/note/delete/<%= @note['id'] %>">
+	<form method="post" action="/note/<%= params[:id] %>">
 		<input type="hidden" name="_method" value="DELETE">
 		<input type="submit" value="削除" class = "delete_btn">
 	</form>

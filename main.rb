@@ -2,92 +2,124 @@ require 'sinatra'
 require 'sinatra/reloader'
 require 'json'
 require 'rack/contrib'
+require 'pg'
 
-$json = 'json/note.json'
-$json_info = open($json) do |file|
-  JSON.load(file)
-end
+class Note
+  @connection = PG::connect(host: "localhost", user: "postgres", password: "F3n54w5n", dbname: "notes_data")
 
-$notes = $json_info['notes']
+  attr_reader :id, :title, :content
 
-def note(note_id)
-  i = ""
-  $notes.each do |note|
-    if note['id'].to_s == note_id.to_s
-      i = note
-      break
-    end
+  def initialize(id:, title:, content:)
+    @id = id || SecureRandom.uuid
+    @title = title
+    @content = content
   end
-  return i
-end
 
-def update_json
-  File.open("json/note.json", 'w') do |file|    
-    JSON.dump($json_info, file)
+  class << self
+    def select_all
+      @connection.exec("SELECT * FROM notes;")
+    end
+
+    def find_id(id:)
+      note = nil
+      @connection.exec("SELECT * FROM notes WHERE id = '#{id}'") do |result|
+        result.each do |row|
+          note = Note.new(id: row["id"], title: row["title"], content: row["content"])
+        end
+      end
+      note
+    end
+
+    def new_note(id: nil, title:, content:)
+      note = Note.new(id: id, title: title, content: content)
+      @connection.exec("INSERT INTO notes VALUES('#{note.id}', '#{note.title}', '#{note.content}');")
+    end
+
+    def delete_note(id:)
+      @connection.exec("DELETE FROM notes WHERE id = '#{id}';")
+    end
+
+    def edit_note(id:, title:, content:)
+      @connection.exec("UPDATE notes SET title = '#{title}', content = '#{content}' WHERE id = '#{id}';")
+    end
   end
 end
 
 get "/" do
-  @notes = $notes
+  @notes = Note.select_all
   erb :index
 end
 
-get "/add" do
+get "/new" do
   erb :new
 end
 
-get "/note/:id" do |n|
-  @note = note(n)
+get "/note/:id" do |id|
+  @note = Note.find_id(id: params[:id])
   erb :show
 end
 
-post "/new" do
-  if !params[:title].match(/\A\R|\A\z/)
-    initialized_id = 0
-    $notes.each do |note|
-      if initialized_id <= note['id'].to_i
-        initialized_id = note['id'].to_i + 1
-      end
-    end
-    added_note = {"id" => initialized_id.to_s, "title" => params[:title], "content" => params[:content]}
-    $json_info['notes'].push(added_note)
-    update_json
+post "/create" do
+  if params[:title].match(/\A\R|\A\z/)
+    @note = Note.new_note(id: params[:id], title: "新規メモ", content: params[:content])
+  else
+    @note = Note.new_note(id: params[:id], title: params[:title], content: params[:content])
   end
+    redirect '/'
+    erb :index
+end
+
+delete '/note/:id' do |id|
+  Note.delete_note(id: params[:id])
   redirect '/'
   erb :index
 end
 
-delete '/note/delete/:id' do |n|
-  count = 0
-  $notes.each do |note|
-    if note['id'].to_s == n.to_s
-      $json_info["notes"].delete_at(count)
-      break
-    end
-    count += 1
-  end
-  update_json
-  redirect '/'
-  erb :index
-end
-
-get '/note/edit/:id' do |n|
-  @note = note(n)
+get '/note/edit/:id' do |id|
+  @note = Note.find_id(id: params[:id])
   erb :edit
 end
 
-patch '/note/edit2/:id' do
-  added_note = {"id" => params[:id].to_s, "title" => params[:title], "content" => params[:content]}
-  count = 0
-  $notes.each do |note|
-    if note['id'].to_s == params[:id].to_s
-      $json_info["notes"][count]["title"] = added_note["title"]
-      $json_info["notes"][count]["content"] = added_note["content"]
-      break
-    end
-    count += 1
-  end
-  update_json
+patch '/note/update/:id' do |id|
+  Note.edit_note(id: params[:id], title: params[:title], content: params[:content])
   redirect '/'
   erb :index
 end
+
+
+
+# ActiveRecord::Base.establish_connection(
+#     "adapter" => "sqlite3",
+#     "database" => "./bbs.db"
+# )
+
+# class Comment < ActiveRecord::Base
+# end
+
+# get "/" do
+#     @comments = Comment.order("id desc").all
+#     erb :index
+# end
+
+# post "/new" do
+#     Comment.create({:body => params[:body]})
+#     redirect '/'
+#     erb :index
+# end
+
+# delete "/delete" do
+#     Comment.find(params[:id]).destroy
+#     # redirect '/'
+#     # erb :index
+# end
+
+# helpers do
+#     include Rack::Utils
+#     alias_method :h,:escape_html
+# end
+
+
+
+# get "/host" do  # this way you'll know if this is working http://localhost4567/host
+#     "hello"
+# end
