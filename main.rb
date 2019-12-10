@@ -5,8 +5,6 @@ require 'rack/contrib'
 require 'pg'
 
 class Note
-  @connection = PG::connect(host: "localhost", user: "postgres", password: "F3n54w5n", dbname: "notes_data")
-
   attr_reader :id, :title, :content
 
   def initialize(id:, title:, content:)
@@ -16,31 +14,50 @@ class Note
   end
 
   class << self
+    def db_connection
+      begin
+        connection = PG::connect(host: "localhost", user: "postgres", password: "F3n54w5n", dbname: "notes_data")
+        yield(connection)
+      ensure
+        connection.close
+      end
+    end
+
     def select_all
-      @connection.exec("SELECT * FROM notes;")
+      @results = db_connection do |conn|
+        conn.exec("SELECT * FROM notes;")
+      end
     end
 
     def find_id(id:)
       note = nil
-      @connection.exec("SELECT * FROM notes WHERE id = '#{id}'") do |result|
-        result.each do |row|
-          note = Note.new(id: row["id"], title: row["title"], content: row["content"])
+      @result = db_connection do |conn|
+        conn.exec("SELECT * FROM notes WHERE id = '#{id}'") do |outcome|
+          outcome.each do |row|
+            note = Note.new(id: row["id"], title: row["title"], content: row["content"])
+          end
         end
+        note
       end
-      note
     end
 
     def new_note(id: nil, title:, content:)
       note = Note.new(id: id, title: title, content: content)
-      @connection.exec("INSERT INTO notes VALUES('#{note.id}', '#{note.title}', '#{note.content}');")
+      @result = db_connection do |conn|
+        conn.exec("INSERT INTO notes VALUES('#{note.id}', '#{note.title}', '#{note.content}');")
+      end
     end
 
     def delete_note(id:)
-      @connection.exec("DELETE FROM notes WHERE id = '#{id}';")
+      @result = db_connection do |conn|
+        conn.exec("DELETE FROM notes WHERE id = '#{id}';")
+      end
     end
 
     def edit_note(id:, title:, content:)
-      @connection.exec("UPDATE notes SET title = '#{title}', content = '#{content}' WHERE id = '#{id}';")
+      @result = db_connection do |conn|
+        conn.exec("UPDATE notes SET title = '#{title}', content = '#{content}' WHERE id = '#{id}';")
+      end
     end
   end
 end
