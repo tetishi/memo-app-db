@@ -5,25 +5,26 @@ require 'rack/contrib'
 require 'pg'
 
 class Note
-  @connection = PG::connect(dbname: "notes_data")
-
   attr_reader :id, :title, :content
 
   def initialize(id:, title:, content:)
     @id = id || SecureRandom.uuid
     @title = title
     @content = content
-    @result = @connection
+  end
+
+  def db_connection
+    @result = PG::connect(dbname: "notes_data")
   end
 
   class << self
     def select_all
-      @result.exec("SELECT * FROM notes;")
+      db_connection.exec("SELECT * FROM notes;")
     end
 
     def find_id(id:)
       note = nil
-      @note = @result.exec("SELECT * FROM notes WHERE id = '#{id}'")
+      @note = db_connection.exec("SELECT * FROM notes WHERE id = '#{id}'")
       @note.each do |row|
         note = Note.new(id: row["id"], title: row["title"], content: row["content"])
       end
@@ -32,15 +33,15 @@ class Note
 
     def new_note(id: nil, title:, content:)
       note = Note.new(id: id, title: title, content: content)
-      @result.exec("INSERT INTO notes VALUES('#{note.id}', '#{note.title}', '#{note.content}');")
+      db_connection.exec("INSERT INTO notes VALUES('#{note.id}', '#{note.title}', '#{note.content}');")
     end
 
     def delete_note(id:)
-      @result.exec("DELETE FROM notes WHERE id = '#{id}';")
+      db_connection.exec("DELETE FROM notes WHERE id = '#{id}';")
     end
 
     def edit_note(id:, title:, content:)
-      @result.exec("UPDATE notes SET title = '#{title}', content = '#{content}' WHERE id = '#{id}';")
+      db_connection.exec("UPDATE notes SET title = '#{title}', content = '#{content}' WHERE id = '#{id}';")
     end
   end
 end
