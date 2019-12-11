@@ -5,59 +5,42 @@ require 'rack/contrib'
 require 'pg'
 
 class Note
+  @connection = PG::connect(dbname: "notes_data")
+
   attr_reader :id, :title, :content
 
   def initialize(id:, title:, content:)
     @id = id || SecureRandom.uuid
     @title = title
     @content = content
+    @result = @connection
   end
 
   class << self
-    def db_connection
-      begin
-        connection = PG::connect(host: "localhost", user: "postgres", password: "F3n54w5n", dbname: "notes_data")
-        yield(connection)
-      ensure
-        connection.close
-      end
-    end
-
     def select_all
-      @results = db_connection do |conn|
-        conn.exec("SELECT * FROM notes;")
-      end
+      @result.exec("SELECT * FROM notes;")
     end
 
     def find_id(id:)
       note = nil
-      @result = db_connection do |conn|
-        conn.exec("SELECT * FROM notes WHERE id = '#{id}'") do |outcome|
-          outcome.each do |row|
-            note = Note.new(id: row["id"], title: row["title"], content: row["content"])
-          end
-        end
-        note
+      @note = @result.exec("SELECT * FROM notes WHERE id = '#{id}'")
+      @note.each do |row|
+        note = Note.new(id: row["id"], title: row["title"], content: row["content"])
       end
+      note
     end
 
     def new_note(id: nil, title:, content:)
       note = Note.new(id: id, title: title, content: content)
-      @result = db_connection do |conn|
-        conn.exec("INSERT INTO notes VALUES('#{note.id}', '#{note.title}', '#{note.content}');")
-      end
+      @result.exec("INSERT INTO notes VALUES('#{note.id}', '#{note.title}', '#{note.content}');")
     end
 
     def delete_note(id:)
-      @result = db_connection do |conn|
-        conn.exec("DELETE FROM notes WHERE id = '#{id}';")
-      end
+      @result.exec("DELETE FROM notes WHERE id = '#{id}';")
     end
 
     def edit_note(id:, title:, content:)
-      @result = db_connection do |conn|
-        conn.exec("UPDATE notes SET title = '#{title}', content = '#{content}' WHERE id = '#{id}';")
-      end
+      @result.exec("UPDATE notes SET title = '#{title}', content = '#{content}' WHERE id = '#{id}';")
     end
   end
 end
