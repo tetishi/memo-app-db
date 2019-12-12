@@ -13,11 +13,11 @@ class Note
     @content = content
   end
 
-  def db_connection
-    @result = PG::connect(dbname: "notes_data")
-  end
-
   class << self
+    def db_connection
+      @result = PG::connect(dbname: "notes_data")
+    end
+
     def select_all
       db_connection.exec("SELECT * FROM notes;")
     end
