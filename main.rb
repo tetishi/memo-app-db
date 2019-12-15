@@ -15,7 +15,7 @@ class Note
 
   class << self
     def db_connection
-      @@result = PG::connect(dbname: "notes_data")
+      PG::connect(dbname: "notes_data")
     end
 
     def select_all
